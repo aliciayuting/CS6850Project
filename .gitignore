@@ -10,6 +10,7 @@ yarn-error.log*
 *.swp
 
 # OS-generated files
+*__pycache__/*
 .DS_Store                # macOS
 **/.DS_Store
 Thumbs.db                # Windows
