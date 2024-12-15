@@ -111,7 +111,7 @@ if __name__ == "__main__":
     
     # print(edges)
     
-    neighborhoods = edgelist_to_neighborhoods(edges, undirected=True)
+    neighborhoods = edgelist_to_neighborhoods(edges, points, undirected=True)
     # print(neighborhoods)
     
     fig = plot_3d_graph(points, neighborhoods)

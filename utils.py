@@ -60,7 +60,11 @@ def plot_3d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
     ))
 
     # add edges
+    print("--------- ",len(points), len(neighborhoods))
     for i, neighbors in enumerate(neighborhoods):
+        if i >= len(points):
+            print(f"Skipping invalid point index: {i}")
+            continue
         p1 = points[i]
         for n in neighbors:
             p2 = points[n]
@@ -98,7 +102,7 @@ def generate_gaussian_points(n, d, seed=0):
     rng = np.random.default_rng(seed)
     return rng.normal(size=(n, d))
 
-def edgelist_to_neighborhoods(edges, undirected=False):
+def edgelist_to_neighborhoods(edges, points ,undirected=False):
     """Converts a list of edges to a list of neighborhoods.
 
     Args:
@@ -108,7 +112,7 @@ def edgelist_to_neighborhoods(edges, undirected=False):
     Returns:
         List[List[int]]: A list of neighborhoods
     """
-    neighborhoods = [[] for _ in range(len(edges))]
+    neighborhoods = [[] for _ in range(len(points))]
     for a, b in edges:
         neighborhoods[a].append(b)
         if undirected:
