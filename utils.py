@@ -84,6 +84,20 @@ def plot_3d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
 
     return fig
 
+def generate_gaussian_points(n, d, seed=0):
+    """Generates n d-dimensional points from a gaussian distribution.
+
+    Args:
+        n (int): The number of points to generate
+        d (int): The dimensionality of the points
+        seed (int, optional): The seed for the RNG. Defaults to 0.
+
+    Returns:
+        numpy.ndarray: A numpy array of shape (n, d) containing the points
+    """
+    rng = np.random.default_rng(seed)
+    return rng.normal(size=(n, d))
+
 # %%
 if __name__ == '__main__':
     # k-nn graph example
