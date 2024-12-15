@@ -98,6 +98,28 @@ def generate_gaussian_points(n, d, seed=0):
     rng = np.random.default_rng(seed)
     return rng.normal(size=(n, d))
 
+def edgelist_to_neighborhoods(edges, undirected=False):
+    """Converts a list of edges to a list of neighborhoods.
+
+    Args:
+        edges (List[Tuple[int, int]]): A list of edges
+        undirected (bool, optional): Whether the graph is undirected. Defaults to False.
+        
+    Returns:
+        List[List[int]]: A list of neighborhoods
+    """
+    neighborhoods = [[] for _ in range(len(edges))]
+    for a, b in edges:
+        neighborhoods[a].append(b)
+        if undirected:
+            neighborhoods[b].append(a)
+            
+    # remove duplicates
+    for i, neighbors in enumerate(neighborhoods):
+        neighborhoods[i] = sorted(set(neighbors))
+        
+    return neighborhoods
+
 # %%
 if __name__ == '__main__':
     # k-nn graph example
