@@ -107,11 +107,11 @@ if __name__ == "__main__":
     n, d = 500, 3
     points = generate_gaussian_points(n, d)
     
-    edges, objective = solve_minimum_edge_cover(points, directed=True)
+    edges, objective = solve_minimum_edge_cover(points, directed=False, relaxed=False)
     
     # print(edges)
     
-    neighborhoods = edgelist_to_neighborhoods(edges, points, undirected=True)
+    neighborhoods = edgelist_to_neighborhoods(edges, undirected=True)
     # print(neighborhoods)
     
     fig = plot_3d_graph(points, neighborhoods)

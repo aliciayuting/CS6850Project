@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
+import dash
+from dash import dcc, html
 
 def plot_2d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
     """Plots a graph over 2d points. Accepts kwargs to be sent to the plotting
@@ -50,12 +52,14 @@ def plot_3d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
     """
     fig = go.Figure()
 
-    # add points
+    # add points with hover labels for indices
     fig.add_trace(go.Scatter3d(
         x=points[:, 0],
         y=points[:, 1],
         z=points[:, 2],
         mode='markers',
+        text=[f"Index: {i}" for i in range(points.shape[0])],  # add hover text
+        hoverinfo="text",  # show only hover text
         **point_kwargs
     ))
 
@@ -73,6 +77,7 @@ def plot_3d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
                 y=[p1[1], p2[1]],
                 z=[p1[2], p2[2]],
                 mode='lines',
+                hoverinfo='none',  # no hover for edges
                 **edge_kwargs
             ))
 
@@ -88,6 +93,86 @@ def plot_3d_graph(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
 
     return fig
 
+def plot_3d_graph_interactive(points, neighborhoods, point_kwargs={}, edge_kwargs={}):
+    """Plots a graph over 3d points in 3d space, creating an interactive Dash visualization."""
+    app = dash.Dash(__name__)
+
+    # Create the initial figure
+    fig = go.Figure()
+
+    # Add points with hover labels for indices
+    fig.add_trace(go.Scatter3d(
+        x=points[:, 0],
+        y=points[:, 1],
+        z=points[:, 2],
+        mode='markers',
+        text=[f"Index: {i}" for i in range(points.shape[0])],  # Add hover text
+        hoverinfo="text",  # Show only hover text
+        **point_kwargs
+    ))
+
+    # Add edges
+    for i, neighbors in enumerate(neighborhoods):
+        p1 = points[i]
+        for n in neighbors:
+            p2 = points[n]
+            fig.add_trace(go.Scatter3d(
+                x=[p1[0], p2[0]],
+                y=[p1[1], p2[1]],
+                z=[p1[2], p2[2]],
+                mode='lines',
+                hoverinfo='none',  # No hover for edges
+                **edge_kwargs
+            ))
+
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            zaxis=dict(visible=False)
+        ),
+        margin=dict(l=0, r=0, b=0, t=0),
+        showlegend=False
+    )
+
+    # Dash layout
+    app.layout = html.Div([
+        dcc.Graph(
+            id='3d-graph',
+            figure=fig
+        ),
+        html.Div(
+            id='distance-output',
+            style={'font-size': '20px', 'margin-top': '10px'}
+        )
+    ])
+
+    # Store clicked points
+    clicked_points = []
+
+    @app.callback(
+        dash.dependencies.Output('distance-output', 'children'),
+        [dash.dependencies.Input('3d-graph', 'clickData')]
+    )
+    def update_distance(click_data):
+        nonlocal clicked_points
+        if click_data and 'points' in click_data:
+            clicked_point = click_data['points'][0]
+            point_index = clicked_point['pointIndex']
+            clicked_points.append(points[point_index])
+
+            if len(clicked_points) > 2:
+                clicked_points.pop(0)
+
+            if len(clicked_points) == 2:
+                p1, p2 = clicked_points
+                distance = np.linalg.norm(p1 - p2)
+                return f'Distance between last two points: {distance:.2f}'
+
+        return "Click two points to see the distance."
+
+    return app
+
 def generate_gaussian_points(n, d, seed=0):
     """Generates n d-dimensional points from a gaussian distribution.
 
@@ -102,7 +187,7 @@ def generate_gaussian_points(n, d, seed=0):
     rng = np.random.default_rng(seed)
     return rng.normal(size=(n, d))
 
-def edgelist_to_neighborhoods(edges, points ,undirected=False):
+def edgelist_to_neighborhoods(edges, undirected=False):
     """Converts a list of edges to a list of neighborhoods.
 
     Args:
@@ -112,7 +197,9 @@ def edgelist_to_neighborhoods(edges, points ,undirected=False):
     Returns:
         List[List[int]]: A list of neighborhoods
     """
-    neighborhoods = [[] for _ in range(len(points))]
+    max_node = max(max(e) for e in edges)
+    neighborhoods = [[] for _ in range(max_node + 1)]
+    
     for a, b in edges:
         neighborhoods[a].append(b)
         if undirected:
@@ -133,4 +220,6 @@ if __name__ == '__main__':
     
     fig = plot_3d_graph(X, edges)
     fig.show()
+    
+    
     
