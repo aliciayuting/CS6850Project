@@ -6,6 +6,8 @@ from scipy.spatial.distance import cdist
 from tqdm import tqdm
 
 def hitting_sets(points):
+    n = len(points)
+    
     # --- 1) Precompute all pairwise distances ---
     print("Computing pairwise distances...")
     dist = cdist(points, points, metric='euclidean')
@@ -103,8 +105,8 @@ def solve_minimum_edge_cover(points, directed=False, relaxed=False):
 
 
 if __name__ == "__main__":
-    from utils import generate_gaussian_points, plot_3d_graph, edgelist_to_neighborhoods
-    n, d = 500, 3
+    from utils import generate_gaussian_points, plot_3d_graph, edgelist_to_neighborhoods, plot_2d_graph
+    n, d = 250, 3
     points = generate_gaussian_points(n, d)
     
     edges, objective = solve_minimum_edge_cover(points, directed=False, relaxed=False)
@@ -114,7 +116,17 @@ if __name__ == "__main__":
     neighborhoods = edgelist_to_neighborhoods(edges, undirected=True)
     # print(neighborhoods)
     
+    # import matplotlib.pyplot as plt
+    
     fig = plot_3d_graph(points, neighborhoods)
+    # fig = plot_2d_graph(points, neighborhoods, edge_kwargs=dict(linewidth=0.5, color='black'))
+    
+    # fig.savefig("plots/2d_minimum_cover_250.png", dpi=300)
+    html_str = fig.to_html(include_plotlyjs='cdn')
+    
+    with open("plots/3d_minimum_cover_250.html", "w") as f:
+        f.write(html_str)
+
     
     fig.show()
     
