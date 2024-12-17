@@ -134,6 +134,21 @@ def edgelist_to_neighborhoods(edges, undirected=False):
         
     return neighborhoods
 
+def neighborhoods_to_edgelist(neighborhoods):
+    """Converts a list of neighborhoods to a list of edges.
+
+    Args:
+        neighborhoods (List[List[int]]): A list of neighborhoods
+
+    Returns:
+        List[Tuple[int, int]]: A list of edges
+    """
+    edges = []
+    for i, neighbors in enumerate(neighborhoods):
+        for n in neighbors:
+            edges.append((i, n))
+    return edges
+
 # %%
 if __name__ == '__main__':
     # k-nn graph example

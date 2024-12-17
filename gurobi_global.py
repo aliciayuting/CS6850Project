@@ -5,7 +5,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from tqdm import tqdm
 
-def hitting_sets(points):
+def hitting_sets(points, alpha=1):
     n = len(points)
     
     # --- 1) Precompute all pairwise distances ---
@@ -23,20 +23,22 @@ def hitting_sets(points):
             S_x_q = [] # points you could connect to that would cover q
             for y in range(n):
                 y_dist = dist[y][q]
-                if y_dist < x_dist:
+                if y_dist * alpha < x_dist:
                     S_x_q.append(y)
             S_x.append(S_x_q)
         sets.append(S_x)
     return sets
 
-def solve_minimum_edge_cover(points, directed=False, relaxed=False):
+
+def solve_minimum_edge_cover(points, directed=False, relaxed=False, sets=None):
     """
     points: list of coordinate tuples, e.g. [(x1,y1), (x2,y2), ...] in 2D
             or higher dimension as needed
     """
     n = len(points)
     
-    sets = hitting_sets(points)
+    if sets is None:
+        sets = hitting_sets(points)
 
     # --- 2) Build the Gurobi model ---
     model = gp.Model("MinimumEdgeCover")
@@ -104,12 +106,14 @@ def solve_minimum_edge_cover(points, directed=False, relaxed=False):
     return edges_selected, objective_value
 
 
+
+
 if __name__ == "__main__":
     from utils import generate_gaussian_points, plot_3d_graph, edgelist_to_neighborhoods, plot_2d_graph
     n, d = 250, 3
     points = generate_gaussian_points(n, d)
     
-    edges, objective = solve_minimum_edge_cover(points, directed=False, relaxed=False)
+    edges, objective = solve_minimum_edge_cover(points, directed=False, relaxed=False, sets=hitting_sets(points, alpha=1.2))
     
     # print(edges)
     
@@ -122,31 +126,11 @@ if __name__ == "__main__":
     # fig = plot_2d_graph(points, neighborhoods, edge_kwargs=dict(linewidth=0.5, color='black'))
     
     # fig.savefig("plots/2d_minimum_cover_250.png", dpi=300)
-    html_str = fig.to_html(include_plotlyjs='cdn')
+    # html_str = fig.to_html(include_plotlyjs='cdn')
     
-    with open("plots/3d_minimum_cover_250.html", "w") as f:
-        f.write(html_str)
+    # with open("plots/3d_minimum_cover_250.html", "w") as f:
+    #     f.write(html_str)
 
     
     fig.show()
     
-    # # --- 1) Precompute all pairwise distances ---
-    # print("Computing pairwise distances...")
-    # dist = cdist(points, points, metric='euclidean')
-    # print("done.")
-    
-    # # --- compute the set cover problem for each point ---
-    # sets = hitting_sets(points)
-    
-    # components = [sorted(list(c)) for c in components]
-    # print(components)
-    
-    # x, q = 0, 38
-    # print(x, q)
-    
-    # S_xq = sets[x][q]
-    # print(S_xq)
-    
-    # print([y for y in S_xq if y in neighborhoods[x]])
-    
-    # print(dist[x][q], dist[37][q])
