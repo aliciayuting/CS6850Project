@@ -26,8 +26,10 @@ for seed in range(num_trials):
 # Plot the histogram of edge ratios
 plt.figure(figsize=(10, 6))
 plt.hist(edge_ratios, bins=20, edgecolor='black', alpha=0.7)
-plt.title("Histogram of Edge Ratios in Pruned Graphs with Varying Vertex Counts")
-plt.xlabel("Edge Ratio (Pruned Edges / Total Edges)")
-plt.ylabel("Frequency")
+plt.title("Histogram of Edge Ratios in Pruned Graphs with Varying Vertex Counts",fontsize=22)
+plt.xlabel("Edge Ratio (Pruned Edges / Total Edges)", fontsize=20)
+plt.ylabel("Frequency", fontsize=20)
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.show()
